@@ -35,7 +35,7 @@ function BoardsListPage() {
 
   const createBoard = useCreateBoard();
 
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [viewMode, setViewMode] = useState<ViewMode>("cards");
 
   return (
     <>
