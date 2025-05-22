@@ -2,21 +2,66 @@ import { ArrowRightIcon, StickerIcon } from "lucide-react";
 import { Button } from "@/shared/ui/kit/button";
 import { useNodes } from "./nodes";
 import { useBoardViewState } from "./view-state";
+import { Ref, RefCallback, useCallback, useState } from "react";
+
+type CanvasRect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+};
+
+const useCanvasRect = () => {
+  const [canvasRect, setCanvasRect] = useState<CanvasRect>();
+  const canvasRef: RefCallback<HTMLDivElement> = useCallback((el) => {
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const { width, height } = entry.contentRect;
+
+        const { x, y } = entry.target.getBoundingClientRect();
+
+        setCanvasRect({
+          x,
+          y,
+          width,
+          height,
+        });
+      }
+    });
+
+    if (el) {
+      observer.observe(el);
+
+      return () => {
+        observer.disconnect();
+      };
+    }
+  }, []);
+
+  return {
+    canvasRef,
+    canvasRect,
+  };
+};
 
 function BoardPage() {
   const { nodes, addSticker } = useNodes();
   const { viewState, goToIdle, goToAddSticker } = useBoardViewState();
+  const { canvasRef, canvasRect } = useCanvasRect();
+
+  console.log(canvasRect);
 
   return (
     <Layout>
       <Dots />
       <Canvas
+        ref={canvasRef}
         onClick={(e) => {
-          if (viewState.type === "add-sticker") {
+          if (viewState.type === "add-sticker" && canvasRect) {
             addSticker({
               text: "Default",
-              x: e.clientX,
-              y: e.clientY,
+              x: e.clientX - canvasRect.x,
+              y: e.clientY - canvasRect.y,
             });
             goToIdle();
           }
@@ -65,10 +110,14 @@ function Dots() {
 
 function Canvas({
   children,
+  ref,
   ...props
-}: { children: React.ReactNode } & React.HTMLAttributes<HTMLDivElement>) {
+}: {
+  children: React.ReactNode;
+  ref: Ref<HTMLDivElement>;
+} & React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div {...props} className="absolute inset-0">
+    <div ref={ref} {...props} className="absolute inset-0">
       {children}
     </div>
   );
