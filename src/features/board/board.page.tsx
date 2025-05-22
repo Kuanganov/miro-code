@@ -1,57 +1,42 @@
 import { ArrowRightIcon, StickerIcon } from "lucide-react";
 import { Button } from "@/shared/ui/kit/button";
-import { useState } from "react";
-
-type NodeBase = {
-  id: string;
-  type: string;
-};
-
-type StickerNode = NodeBase & {
-  type: "sticker";
-  text: string;
-  x: number;
-  y: number;
-};
-
-type Node = StickerNode;
-
-function useNodes() {
-  const [nodes] = useState<Node[]>([
-    {
-      id: "1",
-      type: "sticker",
-      text: "Hello 1",
-      x: 100,
-      y: 100,
-    },
-    {
-      id: "2",
-      type: "sticker",
-      text: "Hello 2",
-      x: 200,
-      y: 200,
-    },
-  ]);
-
-  return {
-    nodes,
-  };
-}
+import { useNodes } from "./nodes";
+import { useBoardViewState } from "./view-state";
 
 function BoardPage() {
-  const { nodes } = useNodes();
+  const { nodes, addSticker } = useNodes();
+  const { viewState, goToIdle, goToAddSticker } = useBoardViewState();
 
   return (
     <Layout>
       <Dots />
-      <Canvas>
+      <Canvas
+        onClick={(e) => {
+          if (viewState.type === "add-sticker") {
+            addSticker({
+              text: "Default",
+              x: e.clientX,
+              y: e.clientY,
+            });
+            goToIdle();
+          }
+        }}
+      >
         {nodes.map((node) => (
           <Sticker text={node.text} x={node.x} y={node.y} />
         ))}
       </Canvas>
       <Actions>
-        <ActionButton isActive={false} onClick={() => {}}>
+        <ActionButton
+          isActive={viewState.type === "add-sticker"}
+          onClick={() => {
+            if (viewState.type === "add-sticker") {
+              goToIdle();
+            } else {
+              goToAddSticker();
+            }
+          }}
+        >
           <StickerIcon />
         </ActionButton>
         <ActionButton isActive={false} onClick={() => {}}>
