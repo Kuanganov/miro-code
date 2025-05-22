@@ -4,16 +4,19 @@ import { useNodes } from "./nodes";
 import { useBoardViewState } from "./view-state";
 import React, { Ref } from "react";
 import { useCanvasRect } from "./use-canvas-rect";
+import { useLayoutFocus } from "./use-layout-focus";
 
 function BoardPage() {
   const { nodes, addSticker } = useNodes();
   const { viewState, goToIdle, goToAddSticker } = useBoardViewState();
+  const focusLayoutRef = useLayoutFocus();
   const { canvasRef, canvasRect } = useCanvasRect();
 
   console.log(canvasRect);
 
   return (
     <Layout
+      ref={focusLayoutRef}
       onKeyDown={(e) => {
         if (viewState.type === "add-sticker") {
           if (e.key === "Escape") {
@@ -70,10 +73,14 @@ export const Component = BoardPage;
 
 function Layout({
   children,
+  ref,
   ...props
-}: { children: React.ReactNode } & React.HTMLAttributes<HTMLDivElement>) {
+}: {
+  children: React.ReactNode;
+  ref: Ref<HTMLDivElement>;
+} & React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className="grow relative" tabIndex={0} {...props}>
+    <div className="grow relative" tabIndex={0} ref={ref} {...props}>
       {children}
     </div>
   );
