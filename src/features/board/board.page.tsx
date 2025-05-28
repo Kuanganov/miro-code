@@ -1,81 +1,50 @@
 import { ArrowRightIcon, StickerIcon } from "lucide-react";
 import { Button } from "@/shared/ui/kit/button";
-import { useNodes } from "./nodes";
-import { useViewModel } from "./view-model";
+import { useNodes } from "./model/nodes";
+import { useViewState } from "./model/view-state";
 import React, { Ref } from "react";
-import { useCanvasRect } from "./use-canvas-rect";
-import { useLayoutFocus } from "./use-layout-focus";
+import { useCanvasRect } from "./hooks/use-canvas-rect";
+import { useLayoutFocus } from "./hooks/use-layout-focus";
 import clsx from "clsx";
+import { useViewModel } from "./view-model/use-view-model";
 
 function BoardPage() {
-  const { nodes, addSticker } = useNodes();
-  const viewModel = useViewModel();
+  const nodesModel = useNodes();
+  const viewStateModel = useViewState();
   const focusLayoutRef = useLayoutFocus();
   const { canvasRef, canvasRect } = useCanvasRect();
 
-  console.log(canvasRect);
+  const viewModel = useViewModel({
+    viewStateModel,
+    nodesModel,
+    canvasRect,
+  });
 
   return (
-    <Layout
-      ref={focusLayoutRef}
-      onKeyDown={(e) => {
-        if (viewModel.viewState.type === "add-sticker") {
-          if (e.key === "Escape") {
-            viewModel.goToIdle();
-          }
-        }
-        if (viewModel.viewState.type === "idle") {
-          if (e.key === "s") {
-            viewModel.goToAddSticker();
-          }
-        }
-      }}
-    >
+    <Layout ref={focusLayoutRef} onKeyDown={viewModel.layout?.onKeyDown}>
       <Dots />
-      <Canvas
-        ref={canvasRef}
-        onClick={(e) => {
-          if (viewModel.viewState.type === "add-sticker" && canvasRect) {
-            addSticker({
-              text: "Default",
-              x: e.clientX - canvasRect.x,
-              y: e.clientY - canvasRect.y,
-            });
-            viewModel.goToIdle();
-          }
-        }}
-      >
-        {nodes.map((node) => (
+
+      <Canvas ref={canvasRef} onClick={viewModel.canvas?.onClick}>
+        <Overlay
+          onClick={viewModel.overlay?.onClick}
+          onMouseDown={viewModel.overlay?.onMouseDown}
+          onMouseUp={viewModel.overlay?.onMouseUp}
+        />
+        {viewModel.nodes.map((node) => (
           <Sticker
+            key={node.id}
             text={node.text}
             x={node.x}
             y={node.y}
-            selected={
-              viewModel.viewState.type === "idle" &&
-              viewModel.viewState.selectedIds.has(node.id)
-            }
-            onClick={(e) => {
-              if (viewModel.viewState.type === "idle") {
-                if (e.ctrlKey || e.shiftKey) {
-                  viewModel.selection([node.id], "toggle");
-                } else {
-                  viewModel.selection([node.id], "replace");
-                }
-              }
-            }}
+            selected={node.isSelected}
+            onClick={node.onClick}
           />
         ))}
       </Canvas>
       <Actions>
         <ActionButton
-          isActive={viewModel.viewState.type === "add-sticker"}
-          onClick={() => {
-            if (viewModel.viewState.type === "add-sticker") {
-              viewModel.goToIdle();
-            } else {
-              viewModel.goToAddSticker();
-            }
-          }}
+          isActive={viewModel.actions?.addSticker?.isActive}
+          onClick={viewModel.actions?.addSticker?.onClick}
         >
           <StickerIcon />
         </ActionButton>
@@ -88,6 +57,25 @@ function BoardPage() {
 }
 
 export const Component = BoardPage;
+
+function Overlay({
+  onClick,
+  onMouseDown,
+  onMouseUp,
+}: {
+  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  onMouseDown?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  onMouseUp?: (e: React.MouseEvent<HTMLDivElement>) => void;
+}) {
+  return (
+    <div
+      className="absolute inset-0"
+      onClick={onClick}
+      onMouseDown={onMouseDown}
+      onMouseUp={onMouseUp}
+    ></div>
+  );
+}
 
 function Layout({
   children,
@@ -135,8 +123,8 @@ function Sticker({
   text: string;
   x: number;
   y: number;
-  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
-  selected: boolean;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  selected?: boolean;
 }) {
   return (
     <button
@@ -166,8 +154,8 @@ function ActionButton({
   onClick,
 }: {
   children: React.ReactNode;
-  isActive: boolean;
-  onClick: () => void;
+  isActive?: boolean;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }) {
   return (
     <Button
