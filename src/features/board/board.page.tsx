@@ -13,15 +13,18 @@ import { Canvas } from "./ui/canvas";
 import { Sticker } from "./ui/sticker";
 import { Actions } from "./ui/actions";
 import { ActionButton } from "./ui/action-button";
+import { useNodesDimensions } from "./hooks/use-nodes-dimensions";
 
 function BoardPage() {
   const nodesModel = useNodes();
   const focusLayoutRef = useLayoutFocus();
   const { canvasRef, canvasRect } = useCanvasRect();
+  const { nodeRef, nodesDimensions } = useNodesDimensions();
 
   const viewModel = useViewModel({
     nodesModel,
     canvasRect,
+    nodesDimensions,
   });
 
   useWindowEvents(viewModel);
@@ -38,12 +41,14 @@ function BoardPage() {
         />
         {viewModel.nodes.map((node) => (
           <Sticker
+            id={node.id}
             key={node.id}
             text={node.text}
             x={node.x}
             y={node.y}
             selected={node.isSelected}
             onClick={node.onClick}
+            ref={nodeRef}
           />
         ))}
       </Canvas>
