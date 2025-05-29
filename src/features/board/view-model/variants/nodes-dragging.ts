@@ -17,6 +17,7 @@ export function useNodesDraggingViewModel({
   nodesModel,
   setViewState,
   canvasRect,
+  windowPositionModel,
 }: ViewModelParams) {
   const getNodes = (state: NodesDraggingViewState) =>
     nodesModel.nodes.map((node) => {
@@ -46,6 +47,7 @@ export function useNodesDraggingViewModel({
               x: e.clientX,
               y: e.clientY,
             },
+            windowPositionModel.position,
             canvasRect,
           );
           setViewState({
