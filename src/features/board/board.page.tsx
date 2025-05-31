@@ -72,7 +72,10 @@ function BoardPage() {
         >
           <StickerIcon />
         </ActionButton>
-        <ActionButton isActive={false} onClick={() => {}}>
+        <ActionButton
+          isActive={viewModel.actions?.addArrow?.isActive}
+          onClick={viewModel.actions?.addArrow?.onClick}
+        >
           <ArrowRightIcon />
         </ActionButton>
       </Actions>
