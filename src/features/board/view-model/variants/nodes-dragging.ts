@@ -2,7 +2,7 @@ import {
   addPoints,
   isRelativePoint,
   Point,
-  vectorFromPoints,
+  diffPoints,
 } from "../../domain/point";
 
 import { pointOnScreenToCanvas } from "../../domain/screen-to-canvas";
@@ -27,7 +27,7 @@ export function useNodesDraggingViewModel({
   const getNodes = (state: NodesDraggingViewState) => {
     return nodesModel.nodes.map((node) => {
       if (state.nodesToMove.has(node.id)) {
-        const diff = vectorFromPoints(state.startPoint, state.endPoint);
+        const diff = diffPoints(state.startPoint, state.endPoint);
 
         if (node.type === "arrow") {
           return {
