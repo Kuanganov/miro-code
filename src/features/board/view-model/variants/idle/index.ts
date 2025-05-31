@@ -10,6 +10,7 @@ import { useGoToSelectionWindow } from "./use-go-to-selection-window";
 import { useMouseDown } from "./use-mouse-down";
 import { useGoToNodesDragging } from "./use-go-to-nodes-dragging";
 import { useGoToWindowDragging } from "./use-go-to-window-dragging";
+import React from "react";
 
 export type IdleViewState = {
   type: "idle";
@@ -46,8 +47,9 @@ export function useIdleViewModel(params: ViewModelParams) {
     nodes: nodesModel.nodes.map((node) => ({
       ...node,
       isSelected: selection.isSelected(idleState, node.id),
-      onMouseDown: (e) => mouseDown.handleNodeMouseDown(idleState, node.id, e),
-      onMouseUp: (e) => {
+      onMouseDown: (e: React.MouseEvent) =>
+        mouseDown.handleNodeMouseDown(idleState, node.id, e),
+      onMouseUp: (e: React.MouseEvent) => {
         if (!mouseDown.getIsStickerMouseDown(idleState, node.id)) {
           return;
         }
