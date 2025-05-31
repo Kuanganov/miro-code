@@ -25,10 +25,15 @@ import {
 import { useZoomDecorator } from "./decorator/zoom";
 import { AddArrowViewState, useAddArrowViewModel } from "./variants/add-arrow";
 import { useCommonActionsDecorator } from "./decorator/common-actions";
+import {
+  DrawArrowViewState,
+  useDrawArrowViewModel,
+} from "./variants/draw-arrow";
 
 export type ViewState =
   | AddArrowViewState
   | AddStickerViewState
+  | DrawArrowViewState
   | EditStickerViewState
   | IdleViewState
   | SelectionWindowViewState
@@ -44,6 +49,7 @@ export function useViewModel(params: Omit<ViewModelParams, "setViewState">) {
   };
 
   const addArrowViewModel = useAddArrowViewModel(newParams);
+  const drawArrowViewModel = useDrawArrowViewModel(newParams);
   const addStickerViewModel = useAddStickerViewModel(newParams);
   const editStickerViewModel = useEditStickerViewModel(newParams);
   const idleViewModel = useIdleViewModel(newParams);
@@ -64,8 +70,14 @@ export function useViewModel(params: Omit<ViewModelParams, "setViewState">) {
       viewModel = commonActionsDecorator(addArrowViewModel());
       break;
     }
+
     case "add-sticker": {
       viewModel = commonActionsDecorator(addStickerViewModel());
+      break;
+    }
+    case "draw-arrow": {
+      console.log("draw-arrow", viewState);
+      viewModel = drawArrowViewModel(viewState);
       break;
     }
     case "edit-sticker": {
@@ -77,7 +89,6 @@ export function useViewModel(params: Omit<ViewModelParams, "setViewState">) {
       break;
     }
     case "nodes-dragging": {
-      console.log("nodes-dragging", viewState);
       viewModel = nodesDraggingViewModel(viewState);
       break;
     }

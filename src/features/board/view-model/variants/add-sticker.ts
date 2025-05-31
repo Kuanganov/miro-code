@@ -1,7 +1,7 @@
 import { pointOnScreenToCanvas } from "../../domain/screen-to-canvas";
 import { ViewModelParams } from "../view-model-params";
 import { ViewModel } from "../view-model-type";
-import { goToAddArrow } from "./add-arrow";
+
 import { goToIdle } from "./idle";
 
 export type AddStickerViewState = {
@@ -45,10 +45,6 @@ export function useAddStickerViewModel({
       addSticker: {
         isActive: true,
         onClick: () => setViewState(goToIdle()),
-      },
-      addArrow: {
-        isActive: false,
-        onClick: () => setViewState(goToAddArrow()),
       },
     },
   });
