@@ -1,4 +1,9 @@
-import { addPoints, Point, vectorFromPoints } from "../../domain/point";
+import {
+  addPoints,
+  isRelativePoint,
+  Point,
+  vectorFromPoints,
+} from "../../domain/point";
 
 import { pointOnScreenToCanvas } from "../../domain/screen-to-canvas";
 
@@ -19,16 +24,20 @@ export function useNodesDraggingViewModel({
   canvasRect,
   windowPositionModel,
 }: ViewModelParams) {
-  const getNodes = (state: NodesDraggingViewState) =>
-    nodesModel.nodes.map((node) => {
+  const getNodes = (state: NodesDraggingViewState) => {
+    return nodesModel.nodes.map((node) => {
       if (state.nodesToMove.has(node.id)) {
         const diff = vectorFromPoints(state.startPoint, state.endPoint);
 
         if (node.type === "arrow") {
           return {
             ...node,
-            start: addPoints(node.start, diff),
-            end: addPoints(node.end, diff),
+            start: isRelativePoint(node.start)
+              ? node.start
+              : addPoints(node.start, diff),
+            end: isRelativePoint(node.end)
+              ? node.end
+              : addPoints(node.end, diff),
             isSelected: true,
           };
         }
@@ -42,6 +51,7 @@ export function useNodesDraggingViewModel({
 
       return node;
     });
+  };
 
   return (state: NodesDraggingViewState): ViewModel => {
     const nodes = getNodes(state);
@@ -71,14 +81,12 @@ export function useNodesDraggingViewModel({
                 return [
                   {
                     id: node.id,
-                    x: node.start.x,
-                    y: node.start.y,
+                    point: node.start,
                     type: "start" as const,
                   },
                   {
                     id: node.id,
-                    x: node.end.x,
-                    y: node.end.y,
+                    point: node.end,
                     type: "end" as const,
                   },
                 ];
@@ -87,8 +95,10 @@ export function useNodesDraggingViewModel({
               return [
                 {
                   id: node.id,
-                  x: node.x,
-                  y: node.y,
+                  point: {
+                    x: node.x,
+                    y: node.y,
+                  },
                 },
               ];
             });
