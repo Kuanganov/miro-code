@@ -1,6 +1,6 @@
-import React from "react";
+import React, { memo } from "react";
 
-export function Overlay({
+export const Overlay = memo(function Overlay({
   onClick,
   onMouseDown,
   onMouseUp,
@@ -9,6 +9,7 @@ export function Overlay({
   onMouseDown?: (e: React.MouseEvent<HTMLDivElement>) => void;
   onMouseUp?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }) {
+  console.log("overlay");
   return (
     <div
       className="absolute inset-0"
@@ -17,4 +18,4 @@ export function Overlay({
       onMouseUp={onMouseUp}
     ></div>
   );
-}
+});

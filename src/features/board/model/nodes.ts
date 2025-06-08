@@ -26,8 +26,8 @@ const createNodes = (num: number): Node[] => {
     id: i.toString(),
     type: "sticker",
     text: "Hello " + i,
-    x: Math.random() * 2000,
-    y: Math.random() * 2000,
+    x: Math.random() * 5000,
+    y: Math.random() * 5000,
   }));
 };
 
